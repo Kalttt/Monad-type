@@ -4,14 +4,17 @@ import { useAccount, useWriteContract, useReadContract, useSignMessage } from 'w
 import { parseAbi } from 'viem';
 import './index.css';
 
-const WORDS = [
-    "monad", "parallel", "execution", "evm", "throughput", "blockchain", 
-    "validator", "consensus", "keccak", "state", "transactions", "pipeline", 
-    "smart", "contract", "gas", "gwei", "layer", "mainnet", "testnet", 
-    "node", "decentralized", "tokenomics", "latency", "finality", "block", 
-    "hash", "proof", "stake", "superscalar", "asynchronous", "root", "scale", 
-    "extreme", "performance", "crypto", "web3", "network", "ledger", "bridge",
-    "defi", "dex", "amm", "liquidity", "yield", "wallet", "dapp", "rpc"
+const MONAD_TEXTS = [
+    "Monad is an EVM-compatible Layer 1 blockchain designed to provide extreme performance and portability.",
+    "By parallelizing transaction execution, Monad achieves massive throughput while remaining fully compatible with Ethereum.",
+    "The consensus mechanism and the execution pipeline are decoupled, allowing the network to process transactions asynchronously.",
+    "Decentralization is a core principle, ensuring that the network remains secure and accessible to all participants.",
+    "With faster block times and lower latency, decentralized applications can operate with unprecedented efficiency.",
+    "Developers can deploy their existing smart contracts on Monad without needing to rewrite or refactor their code.",
+    "Monad utilizes a custom state database built from scratch to eliminate bottlenecks found in traditional EVM architectures.",
+    "The network is optimized for high-frequency trading, gaming, and complex DeFi protocols that demand maximum scalability.",
+    "Through superscalar pipelining, nodes can process multiple instructions simultaneously, drastically reducing transaction fees.",
+    "Monad aims to bridge the gap between Web2 performance and Web3 security, bringing blockchain technology to a global scale."
 ];
 
 const CONTRACT_ADDRESS = "0xE83a368CF8D276fA5077BC10822161B8e116715A";
@@ -54,12 +57,41 @@ function App() {
   const [caretStyle, setCaretStyle] = useState({ left: 0, top: 0, display: 'none' });
   const [wordsMarginTop, setWordsMarginTop] = useState(0);
   
+  // Username & Leaderboard
+  const [showUsernamePrompt, setShowUsernamePrompt] = useState(false);
+  const [usernameInput, setUsernameInput] = useState('');
+  const [username, setUsername] = useState('User');
+  const [leaderboard, setLeaderboard] = useState([]);
+  
   const inputRef = useRef(null);
   const testContainerRef = useRef(null);
   const wordsWrapperRef = useRef(null);
   const restartBtnRef = useRef(null);
+  const nameInputRef = useRef(null);
   
   const timerRef = useRef(null);
+
+  // Load Leaderboard on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('monad_leaderboard');
+    if (saved) {
+        setLeaderboard(JSON.parse(saved));
+    } else {
+        // Initial fake leaderboard
+        setLeaderboard([
+            { id: 1, name: 'Flash', wpm: 142, acc: 98, initials: 'FL' },
+            { id: 2, name: 'Akilesh', wpm: 128, acc: 96, initials: 'AK' }
+        ]);
+    }
+  }, []);
+
+  const updateLeaderboard = (scoreObj) => {
+      setLeaderboard(prev => {
+          const newLb = [...prev, scoreObj].sort((a, b) => b.wpm - a.wpm).slice(0, 5);
+          localStorage.setItem('monad_leaderboard', JSON.stringify(newLb));
+          return newLb;
+      });
+  };
 
   // Contract Reads
   const { data: totalPlayers } = useReadContract({
@@ -73,13 +105,15 @@ function App() {
     functionName: 'totalTxns',
   });
 
-  const generateWords = useCallback((count) => {
-    const newWords = [];
-    const newTyped = [];
-    for (let i = 0; i < count; i++) {
-        newWords.push(WORDS[Math.floor(Math.random() * WORDS.length)]);
-        newTyped.push([]);
+  const generateWords = useCallback(() => {
+    // Generate text from MONAD_TEXTS
+    let text = "";
+    while(text.split(' ').length < 50) {
+        text += MONAD_TEXTS[Math.floor(Math.random() * MONAD_TEXTS.length)] + " ";
     }
+    const newWords = text.trim().split(' ');
+    const newTyped = newWords.map(() => []);
+    
     setWords(newWords);
     setTypedChars(newTyped);
   }, []);
@@ -100,24 +134,23 @@ function App() {
     setWpm(0);
     setAcc(100);
     setHasSubmitted(false);
-    generateWords(100);
+    generateWords();
     setWordsMarginTop(0);
     
-    if (isConnected && isVerified && inputRef.current) {
+    if (isConnected && isVerified && !showUsernamePrompt && inputRef.current) {
         inputRef.current.value = '';
         inputRef.current.focus();
     }
-  }, [timeLimit, isConnected, isVerified, generateWords]);
+  }, [timeLimit, isConnected, isVerified, showUsernamePrompt, generateWords]);
 
   useEffect(() => {
     initTest(timeLimit);
-  }, [timeLimit]); // re-init when duration changes
+  }, [timeLimit]);
 
-  // End test logic
   const endTest = useCallback(() => {
     clearInterval(timerRef.current);
     setTestActive(false);
-    setIsVerified(false); // require signing again
+    setIsVerified(false);
     
     const timeInMinutes = timeLimit / 60;
     const finalWpm = Math.round((correctKeystrokes / 5) / timeInMinutes);
@@ -131,13 +164,11 @@ function App() {
     setShowStats(true);
     setCaretStyle({ display: 'none' });
     
-    // Auto focus restart
     setTimeout(() => {
         if (restartBtnRef.current) restartBtnRef.current.focus();
     }, 100);
   }, [correctKeystrokes, incorrectKeystrokes, extraKeystrokes, missedKeystrokes, totalTypedChars, timeLimit]);
 
-  // Timer Tick
   useEffect(() => {
     if (testActive && timeRemaining > 0) {
         timerRef.current = setInterval(() => {
@@ -155,13 +186,9 @@ function App() {
     return () => clearInterval(timerRef.current);
   }, [testActive, timeRemaining, endTest]);
 
-  // Handle Input
   const handleKeyDown = (e) => {
-    if (showStats) {
-        if (e.key === 'Tab') {
-            e.preventDefault();
-            if (restartBtnRef.current) restartBtnRef.current.focus();
-        }
+    if (showStats || showUsernamePrompt) {
+        if (e.key === 'Tab') e.preventDefault();
         return;
     }
     
@@ -176,7 +203,6 @@ function App() {
 
   const processKeystroke = (e) => {
     if (timeRemaining <= 0 || !isVerified) return;
-    
     if (!testActive) setTestActive(true);
     
     const char = e.key;
@@ -211,7 +237,6 @@ function App() {
                 const removedChar = wordTyped.pop();
                 newTyped[currentWordIndex] = wordTyped;
                 
-                // Adjust stats
                 if (newIndex >= expectedWord.length) {
                     setExtraKeystrokes(p => Math.max(0, p - 1));
                 } else {
@@ -221,7 +246,6 @@ function App() {
                 return newTyped;
             });
         } else if (currentWordIndex > 0) {
-            // Jump back word
             const prevWordIndex = currentWordIndex - 1;
             const prevExpected = words[prevWordIndex];
             const prevTyped = typedChars[prevWordIndex];
@@ -239,7 +263,7 @@ function App() {
         return;
     }
     
-    if (char.length > 1) return; // ignore shift, ctrl etc
+    if (char.length > 1) return;
     
     setTotalTypedChars(p => p + 1);
     
@@ -262,11 +286,10 @@ function App() {
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isConnected, isVerified, showStats, currentWordIndex, currentLetterIndex, timeRemaining, testActive, words, typedChars]);
+  }, [isConnected, isVerified, showStats, showUsernamePrompt, currentWordIndex, currentLetterIndex, timeRemaining, testActive, words, typedChars]);
 
-  // Caret and Scroll positioning
   useEffect(() => {
-    if (!wordsWrapperRef.current || !testContainerRef.current || !isVerified || showStats) return;
+    if (!wordsWrapperRef.current || !testContainerRef.current || !isVerified || showStats || showUsernamePrompt) return;
     
     const wordElements = wordsWrapperRef.current.querySelectorAll('.word');
     const currentWordEl = wordElements[currentWordIndex];
@@ -283,7 +306,6 @@ function App() {
         setWordsMarginTop(0);
     }
     
-    // Position Caret
     const letterEls = currentWordEl.querySelectorAll('.letter');
     let targetEl = null;
     let offset = 0;
@@ -307,7 +329,7 @@ function App() {
         });
     }
     
-  }, [currentWordIndex, currentLetterIndex, isVerified, showStats]);
+  }, [currentWordIndex, currentLetterIndex, isVerified, showStats, showUsernamePrompt]);
 
   const handleSign = async () => {
     try {
@@ -315,34 +337,61 @@ function App() {
             message: `Sign this message to verify your session for Monad Type.\n\nAddress: ${address}\nTimestamp: ${Date.now()}`
         });
         setIsVerified(true);
-        if (inputRef.current) inputRef.current.focus();
+        setShowUsernamePrompt(true); // Open username prompt
     } catch (e) {
         console.error("Sign failed", e);
     }
   };
+  
+  const submitUsername = (skip = false) => {
+      let finalName = usernameInput.trim();
+      if (skip || finalName === '') {
+          finalName = `User ${Math.floor(Math.random() * 1000)}`;
+      }
+      setUsername(finalName);
+      setShowUsernamePrompt(false);
+      
+      // Auto focus game input
+      setTimeout(() => {
+         if(inputRef.current) inputRef.current.focus();
+      }, 100);
+  };
 
   const submitOnChain = async () => {
     if (!isConnected) return alert("Connect wallet first!");
-    if (CONTRACT_ADDRESS === "YOUR_CONTRACT_ADDRESS_HERE") return alert("Deploy contract first!");
     
     setIsSubmitting(true);
     try {
-        const tx = await writeContractAsync({
-            address: CONTRACT_ADDRESS,
-            abi: CONTRACT_ABI,
-            functionName: 'submitScore',
-            args: [wpm, acc]
+        // Mocking the on-chain submission success or actual if deployed
+        if (CONTRACT_ADDRESS !== "YOUR_CONTRACT_ADDRESS_HERE") {
+             await writeContractAsync({
+                address: CONTRACT_ADDRESS,
+                abi: CONTRACT_ABI,
+                functionName: 'submitScore',
+                args: [wpm, acc]
+            });
+        }
+        
+        // Update local leaderboard
+        updateLeaderboard({
+            id: Date.now(),
+            name: username,
+            wpm: wpm,
+            acc: acc,
+            initials: username.substring(0, 2).toUpperCase()
         });
+        
         setHasSubmitted(true);
     } catch (e) {
         console.error("Submit failed", e);
-        alert("Transaction failed!");
+        alert("Transaction failed! Could not update leaderboard.");
     } finally {
         setIsSubmitting(false);
     }
   };
 
   const displayTime = timeRemaining.toString().padStart(2, '0');
+  const bestPlayer = leaderboard.length > 0 ? leaderboard[0] : null;
   
   return (
     <>
@@ -355,12 +404,12 @@ function App() {
           <div className="top-left-section">
               <div className="top-logo">
                   <img src="/Logo.png" alt="Monad Logo" className="monad-icon-small" />
-                  <h1>MONADTYPE</h1>
+                  <h1>MONAD<span className="highlight"> TYPE</span></h1>
               </div>
               <div className="top-stats-inline">
                   <span className="inline-stat"><span className="live-dot"></span> LIVE</span>
                   <span className="inline-stat">PLAYERS <span className="highlight">{totalPlayers ? totalPlayers.toString() : '-'}</span></span>
-                  <span className="inline-stat">1 BEST &rarr; <span className="highlight">0 WPM</span></span>
+                  <span className="inline-stat">1 BEST &rarr; <span className="highlight">{bestPlayer ? bestPlayer.wpm : 0} WPM</span></span>
                   <span className="inline-stat">TXS <span className="highlight">{totalTxns ? totalTxns.toString() : '-'}</span></span>
               </div>
           </div>
@@ -422,7 +471,7 @@ function App() {
           <div className="center-top-bar">
              <div className="center-logo-container">
                  <img src="/Logo.png" alt="Monad Logo" className="monad-custom-logo" />
-                 <h1>MONAD<span className="highlight">TYPE</span></h1>
+                 <h1>MONAD<span className="highlight"> TYPE</span></h1>
              </div>
              <div className="top-game-stats">
                  <div className="stat-box-small">
@@ -445,13 +494,46 @@ function App() {
           </div>
 
           <div className="game-main">
-            <div className="typing-test-container" id="testContainer" ref={testContainerRef} onClick={() => { if(isVerified && inputRef.current) inputRef.current.focus() }}>
+            <div className="typing-test-container" id="testContainer" ref={testContainerRef} onClick={() => { if(isVerified && !showUsernamePrompt && inputRef.current) inputRef.current.focus() }}>
                <input type="text" id="hiddenInput" ref={inputRef} autoComplete="off" />
                
-               {isConnected && !isVerified && !showStats && (
+               {isConnected && !isVerified && !showStats && !showUsernamePrompt && (
                   <div className="overlay" id="signOverlay">
                       <p style={{fontSize: '1.2rem', marginBottom: '1rem', color: 'var(--text-color)'}}>Sign to verify your session and play on Monad.</p>
                       <button className="connect-btn primary" onClick={handleSign}>Sign to Play</button>
+                  </div>
+               )}
+               
+               {showUsernamePrompt && (
+                  <div className="overlay" id="usernameOverlay" style={{zIndex: 50}}>
+                      <h2 style={{color: '#fff', marginBottom: '0.5rem', textShadow: 'var(--main-glow)'}}>Create Profile</h2>
+                      <p style={{color: 'var(--sub-color)', marginBottom: '1.5rem', fontSize: '0.9rem'}}>Set a username for the Global Leaderboard</p>
+                      <input 
+                          type="text" 
+                          ref={nameInputRef}
+                          autoFocus
+                          value={usernameInput}
+                          onChange={(e) => setUsernameInput(e.target.value)}
+                          onKeyDown={(e) => { if(e.key === 'Enter') submitUsername(false); }}
+                          placeholder="Enter username..."
+                          style={{
+                              padding: '1rem', 
+                              borderRadius: '8px', 
+                              border: '1px solid var(--main-color)', 
+                              background: 'rgba(0,0,0,0.5)', 
+                              color: '#fff', 
+                              fontFamily: 'var(--font-ui)', 
+                              fontSize: '1rem',
+                              width: '80%',
+                              marginBottom: '1.5rem',
+                              outline: 'none',
+                              textAlign: 'center'
+                          }}
+                      />
+                      <div style={{display: 'flex', gap: '1rem', width: '80%'}}>
+                          <button className="connect-btn" style={{flex: 1, justifyContent: 'center'}} onClick={() => submitUsername(true)}>Skip</button>
+                          <button className="connect-btn primary" style={{flex: 1, justifyContent: 'center'}} onClick={() => submitUsername(false)}>Save</button>
+                      </div>
                   </div>
                )}
 
@@ -461,7 +543,7 @@ function App() {
                   </div>
                )}
 
-               {isConnected && isVerified && !showStats && (
+               {isConnected && isVerified && !showStats && !showUsernamePrompt && (
                    <>
                       <div id="caret" className="caret" style={caretStyle}></div>
                       <div className="words-box">
@@ -539,14 +621,21 @@ function App() {
           <div className="sidebar-section leaderboard-panel">
             <div className="panel-header"><h3>LEADERBOARD</h3></div>
             <div className="leaderboard-list" style={{marginTop: '1.25rem'}}>
-               <div className="leaderboard-item">
-                   <div className="player-info"><span className="rank">1</span><div style={{background: 'rgba(131,110,249,0.2)', padding: '4px', borderRadius: '4px', color: 'var(--main-color)'}}>FL</div><span>Flash</span></div>
-                   <div className="highlight" style={{fontWeight: 700}}>142</div>
-               </div>
-               <div className="leaderboard-item">
-                   <div className="player-info"><span className="rank">2</span><div style={{background: 'rgba(131,110,249,0.2)', padding: '4px', borderRadius: '4px', color: 'var(--main-color)'}}>AK</div><span>Akilesh</span></div>
-                   <div className="highlight" style={{fontWeight: 700}}>128</div>
-               </div>
+               {leaderboard.map((player, idx) => (
+                   <div className="leaderboard-item" key={player.id || idx}>
+                       <div className="player-info">
+                           <span className="rank">{idx + 1}</span>
+                           <div style={{background: 'rgba(131,110,249,0.2)', padding: '4px 6px', borderRadius: '4px', color: 'var(--main-color)', fontSize: '0.8rem', fontWeight: 600}}>
+                               {player.initials}
+                           </div>
+                           <span style={{maxWidth: '100px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>{player.name}</span>
+                       </div>
+                       <div className="highlight" style={{fontWeight: 700}}>{player.wpm}</div>
+                   </div>
+               ))}
+               {leaderboard.length === 0 && (
+                   <div style={{color: 'var(--sub-color)', textAlign: 'center', fontSize: '0.85rem'}}>No scores yet. Be the first!</div>
+               )}
             </div>
           </div>
         </aside>
