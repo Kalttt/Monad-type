@@ -1,3 +1,5 @@
+import { createWeb3Modal, defaultConfig } from 'https://cdn.jsdelivr.net/npm/@web3modal/ethers5@3.6.2/+esm';
+
 const WORDS = [
     "monad", "parallel", "execution", "evm", "throughput", "blockchain", 
     "validator", "consensus", "keccak", "state", "transactions", "pipeline", 
@@ -419,19 +421,14 @@ const metadata = {
 let modal;
 
 function initWeb3Modal() {
-    if (!window.createWeb3Modal || !window.defaultConfig) {
-        setTimeout(initWeb3Modal, 100);
-        return;
-    }
-    
-    const ethersConfig = window.defaultConfig({
+    const ethersConfig = defaultConfig({
       metadata,
       enableEIP6963: true,
       enableInjected: true,
       enableCoinbase: true,
     });
 
-    modal = window.createWeb3Modal({
+    modal = createWeb3Modal({
       ethersConfig,
       chains: [monadChain],
       projectId,

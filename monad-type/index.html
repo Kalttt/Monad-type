@@ -8,13 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <!-- Web3Modal / Ethers Setup -->
+    <!-- Ethers Setup -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-    <script type="module">
-        import { createWeb3Modal, defaultConfig } from 'https://esm.sh/@web3modal/ethers5@3.6.2?bundle';
-        window.createWeb3Modal = createWeb3Modal;
-        window.defaultConfig = defaultConfig;
-    </script>
 </head>
 <body>
     <div class="background-effects">
@@ -206,6 +201,6 @@
         </aside>
     </div> <!-- End layout-wrapper -->
 
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>
