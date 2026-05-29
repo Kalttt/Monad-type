@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monad Type</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- Web3Modal / Ethers Setup -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script type="module">
+        import { createWeb3Modal, defaultConfig } from 'https://esm.sh/@web3modal/ethers5@3.6.2?bundle';
+        window.createWeb3Modal = createWeb3Modal;
+        window.defaultConfig = defaultConfig;
+    </script>
+</head>
+<body>
+    <div class="background-effects">
+        <div class="grid-overlay"></div>
+    </div>
+
+    <!-- GLOBAL HEADER -->
+    <div class="global-top-bar">
+        <div class="top-left-section">
+            <div class="top-stats-inline">
+                <span class="inline-stat"><span class="dot live-dot"></span> LIVE</span>
+                <span class="inline-stat">PLAYERS <span class="highlight">1</span></span>
+                <span class="inline-stat">BEST -> <span class="highlight">0</span> WPM</span>
+                <span class="inline-stat">TXS <span class="highlight">0</span></span>
+            </div>
+        </div>
+        <div class="top-wallet">
+            <button id="connectWalletBtn" class="connect-btn outline-btn">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                <span id="connectBtnText">CONNECT</span>
+            </button>
+        </div>
+    </div>
+    
+    <div class="layout-wrapper">
+        <!-- LEFT SIDEBAR -->
+        <aside class="sidebar-column left-sidebar">
+            <div class="sidebar-section contract-panel">
+                <div class="panel-header">
+                    <h3>CONTRACT</h3>
+                    <div class="status-dot"></div>
+                </div>
+                
+                <div class="status-line">
+                    Status: <span class="live-text">live on Monad Chain</span>
+                </div>
+                
+                <div class="address-box">
+                    <span class="dim">Addr:</span> <span class="highlight" id="contractAddress">0x8f...monad</span>
+                </div>
+                
+                <div class="stats-row">
+                    <div class="stat-box">
+                        <span class="label">PLAYERS</span>
+                        <span class="value" id="contractPlayers">-</span>
+                    </div>
+                    <div class="stat-box border-left">
+                        <span class="label">TXNS</span>
+                        <span class="value" id="contractTxns">-</span>
+                    </div>
+                </div>
+                
+                <div class="type-section">
+                    <span class="label">TYPE</span>
+                    <div class="value">ScoreRegistry</div>
+                </div>
+                
+                <div class="verified-box">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    VERIFIED
+                </div>
+                
+                <div class="action-buttons">
+                    <button class="action-btn explorer-btn" onclick="window.open('https://testnet.monadexplorer.com/', '_blank')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6"></path><polyline points="21 3 14 3 14 10"></polyline><line x1="21" y1="3" x2="14" y2="10"></line></svg> 
+                        EXPLORER
+                    </button>
+                    <button class="action-btn" id="addNetworkBtn">
+                        + NETWORK
+                    </button>
+                </div>
+            </div>
+            
+            <div class="sidebar-section difficulty-panel glass-panel">
+                <h3>DIFFICULTY</h3>
+                <div class="diff-options">
+                    <button class="diff-btn active" data-diff="normal">NORMAL</button>
+                    <button class="diff-btn" data-diff="expert">EXPERT</button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MIDDLE COLUMN -->
+        <div class="container game-column center-column">
+            
+            <div class="center-top-bar">
+                <div class="center-logo-container">
+                    <img src="logo.png" alt="Monad Logo" class="monad-custom-logo" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'%23836ef9\'><path d=\'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5\'/></svg>'">
+                    <h1>MONAD<span class="highlight">TYPE</span></h1>
+                </div>
+                
+                <div class="top-game-stats">
+                    <div class="stat-box-small">
+                        <span class="val" id="topWpm">0</span>
+                        <span class="lbl">WPM</span>
+                    </div>
+                    <div class="stat-box-small">
+                        <span class="val" id="topAcc">100%</span>
+                        <span class="lbl">ACC</span>
+                    </div>
+                    <div class="stat-box-small">
+                        <span class="val" id="topTime">0:15</span>
+                        <span class="lbl">TIME</span>
+                    </div>
+                    <div class="stat-box-small">
+                        <span class="val" id="topStreak">0</span>
+                        <span class="lbl">STREAK</span>
+                    </div>
+                </div>
+            </div>
+
+            <main class="game-main">
+                <div class="overlay hidden" id="signOverlay">
+                    <p>Sign to verify your session and play on Monad.</p>
+                    <button id="signBtn" class="connect-btn primary">Sign to Play</button>
+                </div>
+
+                <div class="stats-screen hidden" id="statsScreen">
+                    <div class="stat-group">
+                        <div class="stat-label">wpm</div>
+                        <div class="stat-value highlight" id="wpmResult">0</div>
+                    </div>
+                    <div class="stat-group">
+                        <div class="stat-label">acc</div>
+                        <div class="stat-value" id="accResult">0%</div>
+                    </div>
+                    <div class="stat-group">
+                        <div class="stat-label">raw</div>
+                        <div class="stat-value" id="rawResult">0</div>
+                    </div>
+                </div>
+                
+                <div class="typing-test-container" id="testContainer">
+                    <div id="caret" class="caret hidden"></div>
+                    <div class="words-box">
+                        <div class="words-wrapper" id="wordsWrapper">
+                            <!-- Words will be injected here via JS -->
+                        </div>
+                    </div>
+                    <input type="text" id="hiddenInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" autofocus>
+                </div>
+            </main>
+            
+            <div class="bottom-controls">
+                <div class="controls-left">
+                    <span class="prompt-text">Start typing to begin the session...</span>
+                    <div class="btn-group">
+                        <button class="action-btn outline-btn" id="newBtn">+ NEW</button>
+                        <button class="action-btn outline-btn" id="restartBtn">RESTART</button>
+                        
+                        <!-- Hidden time options for backwards compatibility in JS -->
+                        <nav class="time-options" style="display:none;">
+                            <button class="nav-btn active" data-time="15">15</button>
+                            <button class="nav-btn" data-time="30">30</button>
+                            <button class="nav-btn" data-time="60">60</button>
+                        </nav>
+                        <div id="timer" style="display:none;">15</div>
+                    </div>
+                </div>
+                <div class="controls-right">
+                    <button class="action-btn outline-btn disabled" id="submitBtn">SUBMIT ON-CHAIN</button>
+                </div>
+            </div>
+        </div> <!-- End game-column -->
+        
+        <!-- RIGHT SIDEBAR -->
+        <aside class="sidebar-column right-sidebar">
+            <div class="sidebar-section">
+                <h3>CHAIN INFO</h3>
+                <div class="info-row"><span>Network</span> <span class="highlight">Monad Mainnet</span></div>
+                <div class="info-row"><span>Chain ID</span> <span class="highlight">143</span></div>
+                <div class="info-row"><span>Live Players</span> <span class="highlight" id="livePlayers">1</span></div>
+                <div class="info-row"><span>On-Chain</span> <span class="highlight" id="onChainStatus">-</span></div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>LEADERBOARD</h3>
+                <div class="leaderboard-list" id="leaderboardList">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>MY BEST</h3>
+                <div class="my-best-list" id="myBestList">
+                    <div class="empty-state">No score yet</div>
+                </div>
+            </div>
+        </aside>
+    </div> <!-- End layout-wrapper -->
+
+    <script src="script.js"></script>
+</body>
+</html>
