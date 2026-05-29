@@ -265,14 +265,11 @@ function App() {
             if (currentLetterIndex < expectedWord.length) {
                 setMissedKeystrokes(prev => prev + (expectedWord.length - currentLetterIndex));
             }
-            setCurrentWordIndex(prev => {
-                const nextIdx = prev + 1;
-                // Infinite Scroll text:
-                if (nextIdx >= words.length - 15) {
-                    appendMoreWords();
-                }
-                return nextIdx;
-            });
+            const nextIdx = currentWordIndex + 1;
+            if (nextIdx >= words.length - 15) {
+                appendMoreWords();
+            }
+            setCurrentWordIndex(nextIdx);
             setCurrentLetterIndex(0);
         }
         return;
@@ -529,13 +526,13 @@ function App() {
             </div>
             {isVerifiedOnChain && txHash && (
                 <div style={{marginTop: '0.5rem', fontSize: '0.75rem', textAlign: 'center'}}>
-                    <a href={`https://testnet.monadexplorer.com/tx/${txHash}`} target="_blank" rel="noreferrer" style={{color: 'var(--main-color)', textDecoration: 'none'}}>
-                        View Transaction &nearr;
+                    <a href={`https://monadvision.com/tx/${txHash}`} target="_blank" rel="noreferrer" style={{color: 'var(--main-color)', textDecoration: 'none'}}>
+                        View Transaction ↗
                     </a>
                 </div>
             )}
             <div className="action-buttons" style={{marginTop: '1rem'}}>
-               <button className="action-btn explorer-btn" onClick={() => window.open('https://testnet.monadexplorer.com/address/' + CONTRACT_ADDRESS, '_blank')}>EXPLORER</button>
+               <button className="action-btn explorer-btn" onClick={() => window.open('https://monadvision.com/address/' + CONTRACT_ADDRESS, '_blank')}>EXPLORER</button>
             </div>
           </div>
 
