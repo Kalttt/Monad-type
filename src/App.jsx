@@ -345,174 +345,213 @@ function App() {
   const displayTime = timeRemaining.toString().padStart(2, '0');
   
   return (
-    <div className="layout-wrapper">
-      <aside className="sidebar left-sidebar">
-        <div className="panel contract-panel">
-          <div className="panel-header">
-            <h3>CONTRACT</h3>
-            <span className={`status-indicator ${isConnected ? 'live' : ''}`}></span>
-          </div>
-          <div className="contract-status">
-            Status: <span className={isConnected ? "highlight-green" : ""}>{isConnected ? 'live on Monad Chain' : 'Not Connected'}</span>
-          </div>
-          <div className="address-box">
-             Addr: <span>{isConnected ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}` : '-'}</span>
-          </div>
-          <div className="contract-stats">
-             <div className="stat-col"><span className="stat-label">PLAYERS</span><span className="stat-value">{totalPlayers ? totalPlayers.toString() : '-'}</span></div>
-             <div className="stat-col"><span className="stat-label">TXNS</span><span className="stat-value">{totalTxns ? totalTxns.toString() : '-'}</span></div>
-          </div>
-          <div className="contract-type"><span className="stat-label">TYPE</span><span className="stat-value">ScoreRegistry</span></div>
-          <div className="verified-badge">
-             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-             VERIFIED
-          </div>
-          <div className="panel-actions">
-             <button className="action-btn" onClick={() => window.open('https://testnet.monadexplorer.com/address/' + CONTRACT_ADDRESS, '_blank')}>EXPLORER</button>
-          </div>
-        </div>
+    <>
+      <div className="background-effects">
+          <div className="grid-overlay"></div>
+          <div className="glow-orb"></div>
+      </div>
 
-        <div className="panel difficulty-panel">
-          <div className="panel-header"><h3>DIFFICULTY</h3></div>
-          <div className="difficulty-options">
-            <button className={`diff-btn ${difficulty === 'normal' ? 'active' : ''}`} onClick={() => setDifficulty('normal')}>NORMAL</button>
-            <button className={`diff-btn ${difficulty === 'expert' ? 'active' : ''}`} onClick={() => setDifficulty('expert')}>EXPERT</button>
+      <div className="global-top-bar">
+          <div className="top-left-section">
+              <div className="top-logo">
+                  <img src="/Logo.png" alt="Monad Logo" className="monad-icon-small" />
+                  <h1>MONADTYPE</h1>
+              </div>
+              <div className="top-stats-inline">
+                  <span className="inline-stat"><span className="live-dot"></span> LIVE</span>
+                  <span className="inline-stat">PLAYERS <span className="highlight">{totalPlayers ? totalPlayers.toString() : '-'}</span></span>
+                  <span className="inline-stat">1 BEST &rarr; <span className="highlight">0 WPM</span></span>
+                  <span className="inline-stat">TXS <span className="highlight">{totalTxns ? totalTxns.toString() : '-'}</span></span>
+              </div>
           </div>
-        </div>
-      </aside>
+          <div className="top-wallet">
+              <button className="connect-btn" onClick={() => open()}>
+                  {isConnected ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}` : 'CONNECT WALLET'}
+              </button>
+          </div>
+      </div>
 
-      <main className="main-content">
-        <header className="top-bar">
-          <div className="left-stats">
-            <span className="live-indicator"><span className="dot"></span>LIVE</span>
-            <span className="stat-item">PLAYERS <span className="highlight">1</span></span>
-            <span className="stat-item">BEST &rarr; <span className="highlight">0 WPM</span></span>
-            <span className="stat-item">TXS <span className="highlight">0</span></span>
+      <div className="layout-wrapper">
+        <aside className="sidebar-column">
+          <div className="sidebar-section contract-panel">
+            <div className="panel-header">
+              <h3>CONTRACT</h3>
+              <span className="status-dot"></span>
+            </div>
+            <div className="dim" style={{marginTop: '0.5rem', fontSize: '0.85rem'}}>
+               Status: <span className="live-text">{isConnected ? 'live on Monad Chain' : 'Not Connected'}</span>
+            </div>
+            <div className="address-box" style={{marginTop: '1rem'}}>
+               Addr: <span className="highlight">{isConnected ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}` : '-'}</span>
+            </div>
+            <div className="stats-row" style={{marginTop: '1rem'}}>
+               <div className="stat-box">
+                   <span className="label">PLAYERS</span>
+                   <span className="value">{totalPlayers ? totalPlayers.toString() : '-'}</span>
+               </div>
+               <div className="stat-box border-left">
+                   <span className="label">TXNS</span>
+                   <span className="value">{totalTxns ? totalTxns.toString() : '-'}</span>
+               </div>
+            </div>
+            <div className="type-section" style={{marginTop: '1rem'}}>
+               <div className="label">TYPE</div>
+               <div className="value">ScoreRegistry</div>
+            </div>
+            <div className="verified-box" style={{marginTop: '1rem'}}>
+               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+               VERIFIED
+            </div>
+            <div className="action-buttons" style={{marginTop: '1rem'}}>
+               <button className="action-btn explorer-btn" onClick={() => window.open('https://testnet.monadexplorer.com/address/' + CONTRACT_ADDRESS, '_blank')}>EXPLORER</button>
+            </div>
           </div>
-          
+
+          <div className="sidebar-section">
+            <div className="panel-header">
+              <h3>DIFFICULTY</h3>
+            </div>
+            <div className="diff-options" style={{marginTop: '1rem'}}>
+              <button className={`diff-btn ${difficulty === 'normal' ? 'active' : ''}`} onClick={() => setDifficulty('normal')}>NORMAL</button>
+              <button className={`diff-btn ${difficulty === 'expert' ? 'active' : ''}`} onClick={() => setDifficulty('expert')}>EXPERT</button>
+            </div>
+          </div>
+        </aside>
+
+        <main className="center-column">
           <div className="center-top-bar">
              <div className="center-logo-container">
                  <img src="/Logo.png" alt="Monad Logo" className="monad-custom-logo" />
                  <h1>MONAD<span className="highlight">TYPE</span></h1>
              </div>
-             <div className="top-stats">
-                 <div className="stat-box"><div className="stat-val">{wpm}</div><div className="stat-lbl">WPM</div></div>
-                 <div className="stat-box"><div className="stat-val">{acc}%</div><div className="stat-lbl">ACC</div></div>
-                 <div className="stat-box time-box"><div className="stat-val">0:{displayTime}</div><div className="stat-lbl">TIME</div></div>
-                 <div className="stat-box"><div className="stat-val">0</div><div className="stat-lbl">STREAK</div></div>
-             </div>
-          </div>
-
-          <button className={`connect-btn ${isConnected ? 'active' : ''}`} onClick={() => open()}>
-            <span>{isConnected ? `${address.substring(0, 6)}...${address.substring(address.length - 4)}` : 'CONNECT'}</span>
-          </button>
-        </header>
-
-        <div className="game-area">
-          <div className="test-container" id="testContainer" ref={testContainerRef} onClick={() => { if(isVerified && inputRef.current) inputRef.current.focus() }}>
-             <input type="text" id="hiddenInput" ref={inputRef} style={{opacity: 0, position: 'absolute', zIndex: -1}} autoComplete="off" />
-             
-             {isConnected && !isVerified && !showStats && (
-                <div className="overlay" id="signOverlay">
-                    <p>Sign to verify your session and play on Monad.</p>
-                    <button className="connect-btn primary" onClick={handleSign}>Sign to Play</button>
-                </div>
-             )}
-
-             {!isConnected && !showStats && (
-                <div style={{ color: 'var(--sub-color)', textAlign: 'center', marginTop: '100px' }}>
-                   Please connect wallet to play.
-                </div>
-             )}
-
-             {isConnected && isVerified && !showStats && (
-                 <>
-                    <div id="caret" className="caret" style={caretStyle}></div>
-                    <div id="wordsWrapper" className="words-wrapper" ref={wordsWrapperRef} style={{ marginTop: `${wordsMarginTop}px` }}>
-                        {words.map((word, wIdx) => {
-                            const isCurrentWord = wIdx === currentWordIndex;
-                            const typed = typedChars[wIdx] || [];
-                            return (
-                                <div key={wIdx} className="word">
-                                    {word.split('').map((char, cIdx) => {
-                                        let cClass = 'letter';
-                                        if (wIdx < currentWordIndex || (isCurrentWord && cIdx < currentLetterIndex)) {
-                                            cClass += typed[cIdx] === char ? ' correct' : ' incorrect';
-                                        }
-                                        return <span key={cIdx} className={cClass}>{char}</span>;
-                                    })}
-                                    {typed.length > word.length && typed.slice(word.length).map((char, exIdx) => (
-                                        <span key={`ex-${exIdx}`} className="letter incorrect extra">{char}</span>
-                                    ))}
-                                </div>
-                            );
-                        })}
-                    </div>
-                 </>
-             )}
-
-             {showStats && (
-                 <div className="stats-screen" id="statsScreen">
-                    <div className="stat-group">
-                        <div className="stat-title">wpm</div>
-                        <div className="stat-value primary">{wpm}</div>
-                    </div>
-                    <div className="stat-group">
-                        <div className="stat-title">acc</div>
-                        <div className="stat-value">{acc}%</div>
-                    </div>
-                    <div className="stat-group">
-                        <div className="stat-title">raw</div>
-                        <div className="stat-value">{rawWpm}</div>
-                    </div>
-                    <div className="stat-group">
-                        <div className="stat-title">time</div>
-                        <div className="stat-value">{timeLimit}s</div>
-                    </div>
+             <div className="top-game-stats">
+                 <div className="stat-box-small">
+                     <div className="val">{wpm}</div>
+                     <div className="lbl">WPM</div>
                  </div>
-             )}
+                 <div className="stat-box-small">
+                     <div className="val">{acc}%</div>
+                     <div className="lbl">ACC</div>
+                 </div>
+                 <div className="stat-box-small time-box">
+                     <div className="val">0:{displayTime}</div>
+                     <div className="lbl">TIME</div>
+                 </div>
+                 <div className="stat-box-small">
+                     <div className="val">0</div>
+                     <div className="lbl">STREAK</div>
+                 </div>
+             </div>
           </div>
-        </div>
-        
-        <div className="bottom-bar">
-          <div className="keyboard-hint">Start typing to begin the session...</div>
-          <div className="actions">
-            <button className="icon-btn" onClick={() => initTest(timeLimit)}>+ NEW</button>
-            <button className="icon-btn" ref={restartBtnRef} onClick={() => initTest(timeLimit)}>RESTART</button>
-          </div>
-          {showStats && isConnected ? (
-              <button className={`submit-btn ${hasSubmitted ? 'disabled' : ''}`} onClick={submitOnChain} disabled={hasSubmitted || isSubmitting}>
-                  {isSubmitting ? 'SUBMITTING...' : hasSubmitted ? 'SUBMITTED!' : 'SUBMIT ON-CHAIN'}
-              </button>
-          ) : (
-              <div style={{ width: '150px' }}></div>
-          )}
-        </div>
-      </main>
 
-      <aside className="sidebar right-sidebar">
-        <div className="panel">
-          <div className="panel-header"><h3>CHAIN INFO</h3></div>
-          <div className="info-list">
-            <div className="info-row"><span>Network</span><span className="highlight-white">Monad Mainnet</span></div>
-            <div className="info-row"><span>Chain ID</span><span className="highlight-white">143</span></div>
+          <div className="game-main">
+            <div className="typing-test-container" id="testContainer" ref={testContainerRef} onClick={() => { if(isVerified && inputRef.current) inputRef.current.focus() }}>
+               <input type="text" id="hiddenInput" ref={inputRef} autoComplete="off" />
+               
+               {isConnected && !isVerified && !showStats && (
+                  <div className="overlay" id="signOverlay">
+                      <p style={{fontSize: '1.2rem', marginBottom: '1rem', color: 'var(--text-color)'}}>Sign to verify your session and play on Monad.</p>
+                      <button className="connect-btn primary" onClick={handleSign}>Sign to Play</button>
+                  </div>
+               )}
+
+               {!isConnected && !showStats && (
+                  <div style={{ color: 'var(--sub-color)', textAlign: 'center', marginTop: '50px', fontSize: '1rem' }}>
+                     Please connect wallet to play.
+                  </div>
+               )}
+
+               {isConnected && isVerified && !showStats && (
+                   <>
+                      <div id="caret" className="caret" style={caretStyle}></div>
+                      <div className="words-box">
+                          <div id="wordsWrapper" className="words-wrapper" ref={wordsWrapperRef} style={{ marginTop: `${wordsMarginTop}px` }}>
+                              {words.map((word, wIdx) => {
+                                  const isCurrentWord = wIdx === currentWordIndex;
+                                  const typed = typedChars[wIdx] || [];
+                                  return (
+                                      <div key={wIdx} className="word">
+                                          {word.split('').map((char, cIdx) => {
+                                              let cClass = 'letter';
+                                              if (wIdx < currentWordIndex || (isCurrentWord && cIdx < currentLetterIndex)) {
+                                                  cClass += typed[cIdx] === char ? ' correct' : ' incorrect';
+                                              }
+                                              return <span key={cIdx} className={cClass}>{char}</span>;
+                                          })}
+                                          {typed.length > word.length && typed.slice(word.length).map((char, exIdx) => (
+                                              <span key={`ex-${exIdx}`} className="letter incorrect extra">{char}</span>
+                                          ))}
+                                      </div>
+                                  );
+                              })}
+                          </div>
+                      </div>
+                   </>
+               )}
+
+               {showStats && (
+                   <div className="stats-screen" id="statsScreen">
+                      <div className="stat-group">
+                          <div className="stat-label">wpm</div>
+                          <div className="stat-value highlight">{wpm}</div>
+                      </div>
+                      <div className="stat-group">
+                          <div className="stat-label">acc</div>
+                          <div className="stat-value">{acc}%</div>
+                      </div>
+                      <div className="stat-group">
+                          <div className="stat-label">raw</div>
+                          <div className="stat-value">{rawWpm}</div>
+                      </div>
+                      <div className="stat-group">
+                          <div className="stat-label">time</div>
+                          <div className="stat-value">{timeLimit}s</div>
+                      </div>
+                   </div>
+               )}
+            </div>
           </div>
-        </div>
-        <div className="panel leaderboard-panel">
-          <div className="panel-header"><h3>LEADERBOARD</h3></div>
-          <div className="leaderboard-list">
-             <div className="leaderboard-item">
-                 <div className="player-info"><span className="rank">1</span><div className="avatar">FL</div><span>Flash</span></div>
-                 <div className="score">142</div>
-             </div>
-             <div className="leaderboard-item">
-                 <div className="player-info"><span className="rank">2</span><div className="avatar">AK</div><span>Akilesh</span></div>
-                 <div className="score">128</div>
-             </div>
+          
+          <div className="bottom-controls">
+            <div className="controls-left">
+              <div className="prompt-text">Start typing to begin the session...</div>
+              <div className="btn-group">
+                <button className="outline-btn" onClick={() => initTest(timeLimit)}>+ NEW</button>
+                <button className="outline-btn" ref={restartBtnRef} onClick={() => initTest(timeLimit)}>RESTART</button>
+              </div>
+            </div>
+            {showStats && isConnected ? (
+                <button className={`outline-btn ${hasSubmitted ? 'disabled' : ''}`} style={{borderColor: 'var(--neon)', color: 'var(--neon)'}} onClick={submitOnChain} disabled={hasSubmitted || isSubmitting}>
+                    {isSubmitting ? 'SUBMITTING...' : hasSubmitted ? 'SUBMITTED!' : 'SUBMIT ON-CHAIN'}
+                </button>
+            ) : null}
           </div>
-        </div>
-      </aside>
-    </div>
+        </main>
+
+        <aside className="sidebar-column">
+          <div className="sidebar-section">
+            <div className="panel-header"><h3>CHAIN INFO</h3></div>
+            <div style={{marginTop: '1.25rem'}}>
+              <div className="info-row"><span>Network</span><span className="highlight">Monad Mainnet</span></div>
+              <div className="info-row"><span>Chain ID</span><span className="highlight">143</span></div>
+            </div>
+          </div>
+          <div className="sidebar-section leaderboard-panel">
+            <div className="panel-header"><h3>LEADERBOARD</h3></div>
+            <div className="leaderboard-list" style={{marginTop: '1.25rem'}}>
+               <div className="leaderboard-item">
+                   <div className="player-info"><span className="rank">1</span><div style={{background: 'rgba(131,110,249,0.2)', padding: '4px', borderRadius: '4px', color: 'var(--main-color)'}}>FL</div><span>Flash</span></div>
+                   <div className="highlight" style={{fontWeight: 700}}>142</div>
+               </div>
+               <div className="leaderboard-item">
+                   <div className="player-info"><span className="rank">2</span><div style={{background: 'rgba(131,110,249,0.2)', padding: '4px', borderRadius: '4px', color: 'var(--main-color)'}}>AK</div><span>Akilesh</span></div>
+                   <div className="highlight" style={{fontWeight: 700}}>128</div>
+               </div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </>
   );
 }
 
