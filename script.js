@@ -1,4 +1,4 @@
-import { createWeb3Modal, defaultConfig } from 'https://cdn.jsdelivr.net/npm/@web3modal/ethers5@3.6.2/+esm';
+import { createWeb3Modal, defaultConfig } from 'https://esm.sh/@web3modal/ethers5@3.6.2?bundle';
 
 const WORDS = [
     "monad", "parallel", "execution", "evm", "throughput", "blockchain", 
